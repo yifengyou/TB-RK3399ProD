@@ -1,0 +1,14 @@
+[submodule "u-boot.git"]
+	path = u-boot.git
+	url = https://github.com/rockchip-toybrick/u-boot.git
+	branch = main
+
+[submodule "rkbin.git"]
+	path = rkbin.git
+	url = https://github.com/rockchip-toybrick/rkbin.git
+	branch = main
+
+[submodule "kernel.git"]
+	path = kernel.git
+	url = https://github.com/rockchip-toybrick/kernel.git
+	branch = main
