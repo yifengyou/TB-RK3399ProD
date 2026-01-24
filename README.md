@@ -17,6 +17,7 @@ Toybrick RK3399Pro开发板支持RK3399Pro芯片的SDK开发、应用软件的�
 ## 相关站点
 
 * 官网: <https://t.rock-chips.com/portal.php?mod=view&aid=4>
+* 官方资料: <https://t.rock-chips.com/wiki.php>
 
 ## 尺寸图
 
