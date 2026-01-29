@@ -21,10 +21,12 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
+          set -x
           cat /etc/*release
           uname -a
           cat /proc/cpuinfo
           cat /proc/meminfo
+          mount
           ls -alh /github/workspace/
           apt-get -y update
           apt-get install -y ca-certificates
