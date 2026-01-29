@@ -11,9 +11,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    container:
-      image: ubuntu:18.04
-      options: --volume ${{ github.workspace }}:/workspace
+    container: ubuntu:18.04
     strategy:
       fail-fast: false
 
@@ -27,6 +25,7 @@ jobs:
           uname -a
           cat /proc/cpuinfo
           cat /proc/meminfo
+          ls -alh /github/workspace/
           apt-get -y update
           apt-get install -y ca-certificates
           apt-get install -y --no-install-recommends \
@@ -113,8 +112,8 @@ jobs:
 
       - name: Copy output to shared workspace
         run: |
-          cp -r /builder/output/* /workspace/
-          ls -alh /workspace/
+          cp -r /builder/output/* /github/workspace/
+          ls -alh /github/workspace/
 
   release:
     needs: build
