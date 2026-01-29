@@ -11,7 +11,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    container: ubuntu:18.04
+    container:
+      image: ubuntu:18.04
+      options: --volume ${{ github.workspace }}:/workspace
     strategy:
       fail-fast: false
 
@@ -111,21 +113,21 @@ jobs:
 
       - name: Copy output to shared workspace
         run: |
-          mkdir -p ${{ github.workspace }}/output
-          cp -r /builder/output/* ${{ github.workspace }}/output/
+          cp -r /builder/output/* /workspace/
+          ls -alh /workspace/
 
   release:
     needs: build
     runs-on: ubuntu-22.04
     steps:
       - name: List release files
-        run: ls -alh ${{ github.workspace }}/output/
+        run: ls -alh ${{ github.workspace }}/
 
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
         with:
           tag: TB-RK3399ProD-official
-          artifacts: ${{ github.workspace }}/output/*
+          artifacts: ${{ github.workspace }}/*
           allowUpdates: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
