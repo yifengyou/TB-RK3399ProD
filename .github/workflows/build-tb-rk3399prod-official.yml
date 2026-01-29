@@ -10,7 +10,8 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
+    container: ubuntu:18.04
     strategy:
       fail-fast: false
 
@@ -78,7 +79,7 @@ jobs:
       - name: Compile u-boot
         id: compile_uboot
         working-directory: /builder/u-boot.git
-        if: ${{ steps.copy_template.outputs.status }} == 'success' && !cancelled()
+        if: ${{ steps.clone_repo.outputs.status }} == 'success' && !cancelled()
         run: |
           ./make.sh rk3399pro
           ls -alh
@@ -88,7 +89,7 @@ jobs:
       - name: Compile kernel
         id: compile_kernel
         working-directory: /builder/kernel.git
-        if: ${{ steps.compile_d3588_uboot.outputs.status }} == 'success' && !cancelled()
+        if: ${{ steps.compile_uboot.outputs.status }} == 'success' && !cancelled()
         run: |
           ./make.sh linux prod
           ls -alh
@@ -97,7 +98,7 @@ jobs:
 
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
-        if: ${{ steps.generate_rockdev_image.outputs.status }} == 'success' && !cancelled()
+        if: ${{ steps.compile_kernel.outputs.status }} == 'success' && !cancelled()
         with:
           tag: TB-RK3399ProD-official
           artifacts: /builder/output/*
