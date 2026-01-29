@@ -3,7 +3,7 @@ name: Official TB-RK3399ProD
 on:
   repository_dispatch:
   workflow_dispatch:
-    inputs: {}
+    inputs: { }
 
 env:
   TZ: America/New_York
@@ -109,34 +109,26 @@ jobs:
           cp *.img /builder/output/
           echo "status=success" >>  ${GITHUB_OUTPUT}
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: output-images
-          path: /builder/output/
-          retention-days: 1
+      - name: Copy output to shared workspace
+        run: |
+          mkdir -p ${{ github.workspace }}/output
+          cp -r /builder/output/* ${{ github.workspace }}/output/
 
   release:
     needs: build
     runs-on: ubuntu-22.04
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: output-images
-          path: ./output
-
-      - name: List downloaded files (debug)
-        run: ls -alh ./output
+      - name: List release files
+        run: ls -alh ${{ github.workspace }}/output/
 
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
         with:
           tag: TB-RK3399ProD-official
-          artifacts: ./output/*
+          artifacts: ${{ github.workspace }}/output/*
           allowUpdates: true
           replacesArtifacts: true
-          token:  $ {{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             ### 镜像说明
             **For kdev, just for fun**
