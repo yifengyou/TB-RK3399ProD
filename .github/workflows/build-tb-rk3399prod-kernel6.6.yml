@@ -28,29 +28,29 @@ jobs:
           cat /proc/meminfo
 
       - name: Run build in Ubuntu 22.04 container
-        working-directory: ${{ github.workspace }}/build
+        working-directory: ${{ github.workspace }}
         run: |
           pwd
           ls -alh
           docker run --rm \
-            -v ${{ github.workspace }}/build:/build \
-            -w /build \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
             ubuntu:22.04 \
             bash -c "
-              chmod +x kernel6.6-build-on-ubuntu22.04.sh ;
-              ./kernel6.6-build-on-ubuntu22.04.sh
+              chmod +x /workspace/build/kernel6.6-build-on-ubuntu22.04.sh ;
+              /workspace/build/kernel6.6-build-on-ubuntu22.04.sh
             "
 
       - name: Verify build output
         run: |
-          ls -alh  ${{ github.workspace }}/build/output/*
-          md5sum ${{ github.workspace }}/build/output/*
+          ls -alh  ${{ github.workspace }}/output/*
+          md5sum ${{ github.workspace }}/output/*
 
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
         with:
           tag: TB-RK3399ProD-kernel-6.6
-          artifacts: ${{ github.workspace }}/build/output/*
+          artifacts: ${{ github.workspace }}/output/*
           allowUpdates: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}

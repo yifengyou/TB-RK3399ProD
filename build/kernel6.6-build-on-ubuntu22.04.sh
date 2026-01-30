@@ -28,7 +28,7 @@ apt-get install -y --no-install-recommends \
 localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 || true
 
 # === 2. 创建工作目录 ===
-BUILDER_DIR="/build"
+BUILDER_DIR="/workspace"
 OUTPUT_DIR="${BUILDER_DIR}/output"
 mkdir -p "$OUTPUT_DIR"
 
@@ -37,11 +37,10 @@ cd "${BUILDER_DIR}"
 echo "=== Cloning repositories ==="
 git clone --progress https://github.com/ophub/linux-6.6.y.git linux-6.6.y.git
 # git clone --progress https://github.com/rockchip-toybrick/u-boot.git u-boot.git
-git clone --progress https://github.com/rockchip-toybrick/rkbin.git rkbin
-git clone --progress https://github.com/rockchip-toybrick/linux-x86.git linux-x86
-
-mkdir -p prebuilts/gcc/
-mv linux-x86 prebuilts/gcc/
+# git clone --progress https://github.com/rockchip-toybrick/rkbin.git rkbin
+# git clone --progress https://github.com/rockchip-toybrick/linux-x86.git linux-x86
+# mkdir -p prebuilts/gcc/
+# mv linux-x86 prebuilts/gcc/
 
 #cd "${BUILDER_DIR}"
 ## === 4. 编译 U-Boot ===
@@ -54,7 +53,7 @@ cd "${BUILDER_DIR}"
 # === 5. 编译 Kernel ===
 echo "=== Building Kernel ==="
 cd linux-6.6.y.git
-cp -a ${BUILDER_DIR}/linux-6.6.y.git/kernel-6.6/config-6.6 .config
+cp -a ${BUILDER_DIR}/kernel-6.6/config-6.6 .config
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j`nproc` Image
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j`nproc` modules
