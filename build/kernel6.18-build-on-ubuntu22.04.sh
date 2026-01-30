@@ -50,9 +50,11 @@ cd "${BUILDER_DIR}"
 echo "=== Building Kernel ==="
 cd linux-6.18.y.git
 # apply patch
-git config --global user.name yifengyou
-git config --global user.email 842056007@qq.com
-git am ${BUILDER_DIR}/kernel-6.18/*.patch
+if ls "${BUILDER_DIR}/kernel-6.18/"*.patch >/dev/null 2>&1; then
+  git config --global user.name yifengyou
+  git config --global user.email 842056007@qq.com
+  git am ${BUILDER_DIR}/kernel-6.18/*.patch
+fi
 # config kernel
 cp -a ${BUILDER_DIR}/kernel-6.18/config-6.18 .config
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
