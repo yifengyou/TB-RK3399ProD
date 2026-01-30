@@ -41,7 +41,7 @@ jobs:
               /workspace/build/kernel6.6-build-on-ubuntu22.04.sh
             "
 
-      - name: Verify build output
+      - name: List build output
         run: |
           ls -alh  ${{ github.workspace }}/output/*
           md5sum ${{ github.workspace }}/output/*

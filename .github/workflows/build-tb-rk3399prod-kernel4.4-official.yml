@@ -43,7 +43,7 @@ jobs:
               /workspace/build/official-build-on-ubuntu18.04.sh
             "
 
-      - name: Verify build output
+      - name: List build output
         run: |
           ls -alh  ${{ github.workspace }}/output/*
           md5sum ${{ github.workspace }}/output/*
