@@ -58,35 +58,35 @@ localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 || true
 
 # === 2. 创建工作目录 ===
 BUILDER_DIR="/build"
-OUTPUT_DIR="$BUILDER_DIR/output"
-mkdir -p "$BUILDER_DIR""$OUTPUT_DIR"
+OUTPUT_DIR="${BUILDER_DIR}/output"
+mkdir -p "$OUTPUT_DIR"
 
-cd "$BUILDER_DIR"
-
+cd "${BUILDER_DIR}"
 # === 3. 克隆仓库 ===
 echo "=== Cloning repositories ==="
-git clone https://github.com/rockchip-toybrick/kernel.git kernel.git
-git clone https://ghfast.top/https://github.com/rockchip-toybrick/u-boot.git u-boot.git
-git clone https://github.com/rockchip-toybrick/rkbin.git rkbin
-git clone https://github.com/rockchip-toybrick/linux-x86.git linux-x86
+git clone --progress https://github.com/rockchip-toybrick/kernel.git kernel.git
+git clone --progress https://github.com/rockchip-toybrick/u-boot.git u-boot.git
+git clone --progress https://github.com/rockchip-toybrick/rkbin.git rkbin
+git clone --progress https://github.com/rockchip-toybrick/linux-x86.git linux-x86
 
 mkdir -p prebuilts/gcc/
 mv linux-x86 prebuilts/gcc/
 
-cd "$BUILDER_DIR"
+cd "${BUILDER_DIR}"
 # === 4. 编译 U-Boot ===
 echo "=== Building U-Boot ==="
 cd u-boot.git
 ./make.sh rk3399pro
-cp uboot.img trust.img "$OUTPUT_DIR/"
+cp *.img "$OUTPUT_DIR/"
 
-cd "$BUILDER_DIR"
+cd "${BUILDER_DIR}"
 # === 5. 编译 Kernel ===
 echo "=== Building Kernel ==="
 cd kernel.git
 ./make.sh linux prod
 cp *.img "$OUTPUT_DIR/"
 
+echo "=== Output ==="
 ls -alh "$OUTPUT_DIR/"
 
 echo "Build completed successfully!"

@@ -40,7 +40,8 @@ jobs:
 
       - name: Verify build output
         run: |
-          ls -alh  $ {{ github.workspace }}/build/output/*
+          ls -alh  ${{ github.workspace }}/build/output/*
+          md5sum ${{ github.workspace }}/build/output/*
 
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
