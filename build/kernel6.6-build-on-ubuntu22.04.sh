@@ -36,19 +36,19 @@ cd "${BUILDER_DIR}"
 # === 3. 克隆仓库 ===
 echo "=== Cloning repositories ==="
 git clone --progress https://github.com/ophub/linux-6.6.y.git linux-6.6.y.git
-git clone --progress https://github.com/rockchip-toybrick/u-boot.git u-boot.git
+# git clone --progress https://github.com/rockchip-toybrick/u-boot.git u-boot.git
 git clone --progress https://github.com/rockchip-toybrick/rkbin.git rkbin
 git clone --progress https://github.com/rockchip-toybrick/linux-x86.git linux-x86
 
 mkdir -p prebuilts/gcc/
 mv linux-x86 prebuilts/gcc/
 
-cd "${BUILDER_DIR}"
-# === 4. 编译 U-Boot ===
-echo "=== Building U-Boot ==="
-cd u-boot.git
-./make.sh rk3399pro
-cp *.img "$OUTPUT_DIR/"
+#cd "${BUILDER_DIR}"
+## === 4. 编译 U-Boot ===
+#echo "=== Building U-Boot ==="
+#cd u-boot.git
+#./make.sh rk3399pro
+#cp *.img "$OUTPUT_DIR/"
 
 cd "${BUILDER_DIR}"
 # === 5. 编译 Kernel ===
