@@ -1,0 +1,50 @@
+From 34b54138bd65a2eb875d55fad23588b7e415b33d Mon Sep 17 00:00:00 2001
+From: yifengyou <842056007@qq.com>
+Date: Fri, 30 Jan 2026 05:50:45 +0000
+Subject: [PATCH] add toybrick rk3399prod support for kernel 6.*
+
+Signed-off-by: yifengyou <842056007@qq.com>
+---
+ arch/arm64/boot/dts/rockchip/Makefile           |  1 +
+ .../dts/rockchip/rk3399pro-toybrick-prod.dts    | 17 +++++++++++++++++
+ 2 files changed, 18 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dts
+
+diff --git a/arch/arm64/boot/dts/rockchip/Makefile b/arch/arm64/boot/dts/rockchip/Makefile
+index 14fb3ba50..c040d1d27 100644
+--- a/arch/arm64/boot/dts/rockchip/Makefile
++++ b/arch/arm64/boot/dts/rockchip/Makefile
+@@ -98,6 +98,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-tvi3315a.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-zcube1-max.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-zysj.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399pro-rock-pi-n10.dtb
++dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399pro-toybrick-prod.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-anbernic-rg-arc-d.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-anbernic-rg-arc-s.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-anbernic-rg353p.dtb
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dts b/arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dts
+new file mode 100644
+index 000000000..7deadbf72
+--- /dev/null
++++ b/arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dts
+@@ -0,0 +1,17 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++
++/dts-v1/;
++#include "rk3399pro.dtsi"
++#include "rk3399-opp.dtsi"
++
++/ {
++	model = "ToyBrick RK3399ProD";
++	compatible = "rockchip,rk3399pro-toybrick-prod-linux","rockchip,rk3399pro";
++	chosen {
++		stdout-path = "serial2:1500000n8";
++	};
++};
++
++&hdmi_sound {
++	status = "okay";
++};
+-- 
+2.43.0
+
