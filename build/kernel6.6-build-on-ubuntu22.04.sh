@@ -63,6 +63,9 @@ cp arch/arm64/boot/Image $OUTPUT_DIR/
 mkdir -p dtbs
 find . -name "rk3399*.dtb" | xargs -i cp {} dtbs/
 tar -zcvf $OUTPUT_DIR/dtbs.tar.gz dtbs
+mkdir -p kos
+find . -name "*.ko" | xargs -i cp {} kos/
+tar -zcvf $OUTPUT_DIR/kos.tar.gz kos
 
 echo "=== Output ==="
 ls -alh "$OUTPUT_DIR/"
