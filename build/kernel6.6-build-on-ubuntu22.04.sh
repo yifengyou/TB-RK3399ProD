@@ -55,7 +55,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) dtbs
 cp arch/arm64/boot/Image $OUTPUT_DIR/
-mkdir -p tbs
+mkdir -p dtbs
 find . -name "rk3399*.dtb" | xargs -i cp {} dtbs/
 tar -zcvf $OUTPUT_DIR/dtbs.tar.gz dtbs
 
