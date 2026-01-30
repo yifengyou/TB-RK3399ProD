@@ -1,0 +1,59 @@
+name: kernel 6.12 for TB-RK3399ProD
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs: { }
+
+env:
+  TZ: America/New_York
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Show environment
+        run: |
+          nproc
+          uname -a
+          cat /etc/*release
+          free -h
+          mount
+          df -h
+          cat /proc/cpuinfo
+          cat /proc/meminfo
+
+      - name: Run build in Ubuntu 22.04 container
+        working-directory: ${{ github.workspace }}
+        run: |
+          pwd
+          ls -alh
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            ubuntu:22.04 \
+            bash -c "
+              chmod +x /workspace/build/kernel6.12-build-on-ubuntu22.04.sh ;
+              /workspace/build/kernel6.12-build-on-ubuntu22.04.sh
+            "
+
+      - name: List build output
+        run: |
+          ls -alh  ${{ github.workspace }}/output/*
+          md5sum ${{ github.workspace }}/output/*
+
+      - name: Upload Image to Release
+        uses: ncipollo/release-action@main
+        with:
+          tag: TB-RK3399ProD-kernel-6.12
+          artifacts: ${{ github.workspace }}/output/*
+          allowUpdates: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            ### 镜像说明
+            **For kdev, just for fun**
