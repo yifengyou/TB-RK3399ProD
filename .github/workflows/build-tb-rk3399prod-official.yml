@@ -11,124 +11,42 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    container: ubuntu:18.04
     strategy:
       fail-fast: false
 
     steps:
-      - name: Initialization environment
-        id: init
-        env:
-          DEBIAN_FRONTEND: noninteractive
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Show environment
         run: |
-          set -x
-          cat /etc/*release
           uname -a
-          cat /proc/cpuinfo
-          cat /proc/meminfo
-          mount
-          ls -alh /github/workspace/
-          apt-get -y update
-          apt-get install -y ca-certificates
-          apt-get install -y --no-install-recommends \
-            build-essential \
-            ca-certificates \
-            ccache \
-            curl \
-            device-tree-compiler \
-            dosfstools \
-            fakeroot \
-            file \
-            flex \
-            gawk \
-            gcc-aarch64-linux-gnu \
-            git \
-            gnupg \
-            jq \
-            libssl-dev \
-            locales \
-            lsb-release \
-            lzop \
-            make \
-            ncurses-dev \
-            parted \
-            patch \
-            pigz \
-            python \
-            python3 \
-            python3-distutils \
-            python3-pip \
-            rsync \
-            sed \
-            sudo \
-            u-boot-tools \
-            unzip \
-            wget \
-            xxd \
-            xz-utils \
-            zip \
-            binwalk \
-            zlib1g-dev \
-            squashfs-tools \
-            rar \
-            liblz4-tool \
-            genext2fs \
-            bc \
-            htop \
-            openssh-client
-          mkdir -p /builder
-          localedef -i zh_CN -f UTF-8 zh_CN.UTF-8
+          lsb_release -a
+          docker --version
 
-      - name: Download Git Repository
-        id: clone_repo
-        working-directory: /builder/
+      - name: Run build in Ubuntu 18.04 container
+        working-directory: ${{ github.workspace }}/build
         run: |
-          df -hT ${PWD}
-          git clone https://github.com/rockchip-toybrick/kernel.git kernel.git
-          git clone https://ghfast.top/https://github.com/rockchip-toybrick/u-boot.git u-boot.git
-          git clone https://github.com/rockchip-toybrick/rkbin.git rkbin
-          git clone https://github.com/rockchip-toybrick/linux-x86.git linux-x86
-          mkdir -p prebuilts/gcc/
-          mv linux-x86 prebuilts/gcc/
-          mkdir -p /builder/output
+          pwd
           ls -alh
-          echo "status=success" >>  ${GITHUB_OUTPUT}
+          docker run --rm \
+            -v ${{ github.workspace }}/build:/build \
+            -w /build \
+            ubuntu:18.04 \
+            bash -c "
+              chmod +x official-build-on-ubuntu18.04.sh ;
+              ./official-build-on-ubuntu18.04.sh
+            "
 
-      - name: Compile u-boot
-        id: compile_uboot
-        working-directory: /builder/u-boot.git
+      - name: Verify build output
         run: |
-          ./make.sh rk3399pro
-          ls -alh
-          cp uboot.img trust.img /builder/output/
-          echo "status=success" >>  ${GITHUB_OUTPUT}
-
-      - name: Compile kernel
-        id: compile_kernel
-        working-directory: /builder/kernel.git
-        run: |
-          ./make.sh linux prod
-          ls -alh
-          cp *.img /builder/output/
-          echo "status=success" >>  ${GITHUB_OUTPUT}
-
-      - name: Copy output to shared workspace
-        run: |
-          cp -r /builder/output/* /github/workspace/
-          ls -alh /github/workspace/
-
-  release:
-    needs: build
-    runs-on: ubuntu-22.04
-    steps:
-      - name: List release files
-        run: ls -alh ${{ github.workspace }}/
+          ls -alh  $ {{ github.workspace }}/build/output/*
 
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
         with:
           tag: TB-RK3399ProD-official
-          artifacts: ${{ github.workspace }}/*
+          artifacts: ${{ github.workspace }}/build/output/*
           allowUpdates: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
