@@ -56,7 +56,9 @@ if ls "${BUILDER_DIR}/kernel-6.18/"*.patch >/dev/null 2>&1; then
   git am ${BUILDER_DIR}/kernel-6.18/*.patch
 fi
 # config kernel
-cp -a ${BUILDER_DIR}/kernel-6.18/config-6.18 .config
+if [ -f ${BUILDER_DIR}/kernel-6.18config-6.18 ];then
+  cp -a ${BUILDER_DIR}/kernel-6.18/config-6.18 .config
+fi
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image
 make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules
