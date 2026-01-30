@@ -57,7 +57,7 @@ apt-get install -y --no-install-recommends \
 localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 || true
 
 # === 2. 创建工作目录 ===
-BUILDER_DIR="/build"
+BUILDER_DIR="/workspace"
 OUTPUT_DIR="${BUILDER_DIR}/output"
 mkdir -p "$OUTPUT_DIR"
 

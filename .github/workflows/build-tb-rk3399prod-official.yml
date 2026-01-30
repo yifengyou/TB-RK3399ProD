@@ -30,29 +30,29 @@ jobs:
           cat /proc/meminfo
 
       - name: Run build in Ubuntu 18.04 container
-        working-directory: ${{ github.workspace }}/build
+        working-directory: ${{ github.workspace }}
         run: |
           pwd
           ls -alh
           docker run --rm \
-            -v ${{ github.workspace }}/build:/build \
-            -w /build \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
             ubuntu:18.04 \
             bash -c "
-              chmod +x official-build-on-ubuntu18.04.sh ;
-              ./official-build-on-ubuntu18.04.sh
+              chmod +x /workspace/build/official-build-on-ubuntu18.04.sh ;
+              /workspace/build/official-build-on-ubuntu18.04.sh
             "
 
       - name: Verify build output
         run: |
-          ls -alh  ${{ github.workspace }}/build/output/*
-          md5sum ${{ github.workspace }}/build/output/*
+          ls -alh  ${{ github.workspace }}/output/*
+          md5sum ${{ github.workspace }}/output/*
 
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
         with:
           tag: TB-RK3399ProD-kernel-4.4-official
-          artifacts: ${{ github.workspace }}/build/output/*
+          artifacts: ${{ github.workspace }}/output/*
           allowUpdates: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
