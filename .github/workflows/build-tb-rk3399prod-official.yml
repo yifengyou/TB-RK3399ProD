@@ -1,4 +1,4 @@
-name: Official TB-RK3399ProD
+name: kernel 4.4 for TB-RK3399ProD(official)
 
 on:
   repository_dispatch:
@@ -51,7 +51,7 @@ jobs:
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
         with:
-          tag: TB-RK3399ProD-official
+          tag: TB-RK3399ProD-kernel-4.4-official
           artifacts: ${{ github.workspace }}/build/output/*
           allowUpdates: true
           replacesArtifacts: true
