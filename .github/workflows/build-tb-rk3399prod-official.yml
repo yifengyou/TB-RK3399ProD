@@ -20,9 +20,14 @@ jobs:
 
       - name: Show environment
         run: |
+          nproc
           uname -a
-          lsb_release -a
-          docker --version
+          cat /etc/*release
+          free -h
+          mount
+          df -h
+          cat /proc/cpuinfo
+          cat /proc/meminfo
 
       - name: Run build in Ubuntu 18.04 container
         working-directory: ${{ github.workspace }}/build
