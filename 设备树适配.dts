@@ -165,17 +165,97 @@ regulator.9 -> ../../devices/platform/ff3c0000.i2c/i2c-0/0-0020/regulator/regula
 ```
 
 
+### 驱动配置
+
+
+## i2c配置
+### 硬件电路
+
+
+### dts配置
 
 ```shell
-regulator.0 -> ../../devices/platform/reg-dummy/regulator/regulator.0
-regulator.1 -> ../../devices/platform/dc-12v/regulator/regulator.1
-regulator.2 -> ../../devices/platform/vcc-sys/regulator/regulator.2
-regulator.3 -> ../../devices/platform/vcc-phy-regulator/regulator/regulator.3
-regulator.4 -> ../../devices/platform/vdd-log/regulator/regulator.4
-regulator.5 -> ../../devices/platform/vcc3v3-sys/regulator/regulator.5
-regulator.6 -> ../../devices/platform/vcc5v0-host-regulator/regulator/regulator.6
-regulator.7 -> ../../devices/platform/vbus-typec-regulator/regulator/regulator.7
-regulator.8 -> ../../devices/platform/vcc3v0-sd/regulator/regulator.8
+root@armbian:~# ls -alh /sys/bus/i2c/devices/
+total 0
+drwxr-xr-x 2 root root 0 Jan  1  1970 .
+drwxr-xr-x 4 root root 0 Jan  1  1970 ..
+lrwxrwxrwx 1 root root 0 Jan  1  1970 0-0010 -> ../../../devices/platform/ff3c0000.i2c/i2c-0/0-0010
+lrwxrwxrwx 1 root root 0 Jan  1  1970 0-001c -> ../../../devices/platform/ff3c0000.i2c/i2c-0/0-001c
+lrwxrwxrwx 1 root root 0 Jan  1  1970 0-0020 -> ../../../devices/platform/ff3c0000.i2c/i2c-0/0-0020
+lrwxrwxrwx 1 root root 0 Jan  1  1970 6-0047 -> ../../../devices/platform/ff150000.i2c/i2c-6/6-0047
+lrwxrwxrwx 1 root root 0 Jan  1  1970 7-0013 -> ../../../devices/platform/ff160000.i2c/i2c-7/7-0013
+lrwxrwxrwx 1 root root 0 Jan  1  1970 8-0022 -> ../../../devices/platform/ff3e0000.i2c/i2c-8/8-0022
+lrwxrwxrwx 1 root root 0 Jan  1  1970 i2c-0 -> ../../../devices/platform/ff3c0000.i2c/i2c-0
+lrwxrwxrwx 1 root root 0 Jan  1  1970 i2c-1 -> ../../../devices/platform/ff110000.i2c/i2c-1
+lrwxrwxrwx 1 root root 0 Jan  1  1970 i2c-2 -> ../../../devices/platform/ff120000.i2c/i2c-2
+lrwxrwxrwx 1 root root 0 Jan  1  1970 i2c-3 -> ../../../devices/platform/ff130000.i2c/i2c-3
+lrwxrwxrwx 1 root root 0 Jan  1  1970 i2c-4 -> ../../../devices/platform/ff3d0000.i2c/i2c-4
+lrwxrwxrwx 1 root root 0 Jan  1  1970 i2c-6 -> ../../../devices/platform/ff150000.i2c/i2c-6
+lrwxrwxrwx 1 root root 0 Jan  1  1970 i2c-7 -> ../../../devices/platform/ff160000.i2c/i2c-7
+lrwxrwxrwx 1 root root 0 Jan  1  1970 i2c-8 -> ../../../devices/platform/ff3e0000.i2c/i2c-8
 ```
 
+### 驱动配置
+
+
+
+## usb配置
+
+
+### 硬件电路
+
+
+### dts配置
+```shell
+# ls /sys/bus/usb/devices/ -alh
+total 0
+drwxr-xr-x 2 root root 0 Jan 31 15:11 .
+drwxr-xr-x 4 root root 0 Feb 20  2019 ..
+lrwxrwxrwx 1 root root 0 Feb 20  2019 1-0:1.0 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb1/1-0:1.0
+lrwxrwxrwx 1 root root 0 Feb 20  2019 1-1 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb1/1-1
+lrwxrwxrwx 1 root root 0 Feb 20  2019 1-1:1.0 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb1/1-1/1-1:1.0
+lrwxrwxrwx 1 root root 0 Feb 20  2019 2-0:1.0 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb2/2-0:1.0
+lrwxrwxrwx 1 root root 0 Feb 20  2019 2-1 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb2/2-1
+lrwxrwxrwx 1 root root 0 Jan 31 07:34 2-1.1 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb2/2-1/2-1.1
+lrwxrwxrwx 1 root root 0 Jan 31 11:04 2-1.1:1.0 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb2/2-1/2-1.1/2-1.1:1.0
+lrwxrwxrwx 1 root root 0 Jan 31 11:04 2-1.1:1.1 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb2/2-1/2-1.1/2-1.1:1.1
+lrwxrwxrwx 1 root root 0 Feb 20  2019 2-1:1.0 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb2/2-1/2-1:1.0
+lrwxrwxrwx 1 root root 0 Feb 20  2019 3-0:1.0 -> ../../../devices/platform/fe380000.usb/usb3/3-0:1.0
+lrwxrwxrwx 1 root root 0 Feb 20  2019 3-1 -> ../../../devices/platform/fe380000.usb/usb3/3-1
+lrwxrwxrwx 1 root root 0 Feb 20  2019 3-1:1.0 -> ../../../devices/platform/fe380000.usb/usb3/3-1/3-1:1.0
+lrwxrwxrwx 1 root root 0 Feb 20  2019 3-1:1.1 -> ../../../devices/platform/fe380000.usb/usb3/3-1/3-1:1.1
+lrwxrwxrwx 1 root root 0 Feb 20  2019 3-1:1.2 -> ../../../devices/platform/fe380000.usb/usb3/3-1/3-1:1.2
+lrwxrwxrwx 1 root root 0 Feb 20  2019 4-0:1.0 -> ../../../devices/platform/fe3c0000.usb/usb4/4-0:1.0
+lrwxrwxrwx 1 root root 0 Feb 20  2019 5-0:1.0 -> ../../../devices/platform/fe3a0000.usb/usb5/5-0:1.0
+lrwxrwxrwx 1 root root 0 Feb 20  2019 6-0:1.0 -> ../../../devices/platform/fe3e0000.usb/usb6/6-0:1.0
+lrwxrwxrwx 1 root root 0 Feb 20  2019 usb1 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb1
+lrwxrwxrwx 1 root root 0 Feb 20  2019 usb2 -> ../../../devices/platform/usb1/fe900000.dwc3/xhci-hcd.10.auto/usb2
+lrwxrwxrwx 1 root root 0 Feb 20  2019 usb3 -> ../../../devices/platform/fe380000.usb/usb3
+lrwxrwxrwx 1 root root 0 Feb 20  2019 usb4 -> ../../../devices/platform/fe3c0000.usb/usb4
+lrwxrwxrwx 1 root root 0 Feb 20  2019 usb5 -> ../../../devices/platform/fe3a0000.usb/usb5
+lrwxrwxrwx 1 root root 0 Feb 20  2019 usb6 -> ../../../devices/platform/fe3e0000.usb/usb6
+```
+
+### 驱动配置
+
+
+default rockchip-kernel-4.4
+menu title Kdev U-Boot menu
+prompt 1
+timeout 90
+
+label rockchip-kernel-4.4
+	kernel /extlinux/Image
+	fdt /extlinux/toybrick.dtb
+	append  earlycon=uart8250,mmio32,0xff1a0000 initrd=/initramfs-toybrick-2.0.img root=PARTUUID=614e0000-0000-4b53-8000-1d28000054a9 rw rootwait rootfstype=ext4
+
+label rockchip-kernel-6.6
+	kernel /extlinux/Image-6.6
+	fdt /extlinux/rk3399pro-toybrick-prod.dtb
+	append  earlycon=uart8250,mmio32,0xff1a0000 console=ttyS2,1500000 rw rootwait rootfstype=ext4 initrd=/initrd.img-4.4.194 level=10 log_level=10 root=PARTUUID=614e0000-0000-4b53-8000-1d28000054a9
+
+
+## xxx配置
+### 硬件电路
+### dts配置
 ### 驱动配置
