@@ -1,26 +1,26 @@
-From 8a294c5077679ecaac25c737f3a9d3b9fd10de54 Mon Sep 17 00:00:00 2001
+From fcc49217916cb0e3b35d18631b3f8d1d64b2aa4e Mon Sep 17 00:00:00 2001
 From: yifengyou <842056007@qq.com>
-Date: Tue, 3 Feb 2026 14:33:32 +0000
+Date: Thu, 5 Feb 2026 14:35:21 +0000
 Subject: [PATCH] add toybrick rk3399prod support for kernel 6.*
 
 ---
- 1.dts                                         | 4334 +++++++++++++++++
+ 1.dts                                         | 4335 +++++++++++++++++
  .../devicetree/bindings/arm/rockchip.yaml     |    6 +
  arch/arm64/boot/dts/rockchip/Makefile         |    1 +
  arch/arm64/boot/dts/rockchip/rk3399.dtsi      |    2 +-
- .../dts/rockchip/rk3399pro-toybrick-prod.dts  | 1135 +++++
+ .../dts/rockchip/rk3399pro-toybrick-prod.dts  | 1143 +++++
  firefly.dts                                   | 4304 ++++++++++++++++
- 6 files changed, 9781 insertions(+), 1 deletion(-)
+ 6 files changed, 9790 insertions(+), 1 deletion(-)
  create mode 100644 1.dts
  create mode 100644 arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dts
  create mode 100644 firefly.dts
 
 diff --git a/1.dts b/1.dts
 new file mode 100644
-index 000000000..118c5e558
+index 000000000..ab3c22443
 --- /dev/null
 +++ b/1.dts
-@@ -0,0 +1,4334 @@
+@@ -0,0 +1,4335 @@
 +/dts-v1/;
 +
 +/ {
@@ -738,6 +738,7 @@ index 000000000..118c5e558
 +		clock-names = "hclk_master\0hclk_slave\0sclk";
 +		resets = <0x08 0xba 0x08 0xb8 0x08 0xb9>;
 +		reset-names = "master\0slave\0crypto-rst";
++		status = "disabled";
 +		phandle = <0xdb>;
 +	};
 +
@@ -4399,10 +4400,10 @@ index 942098b2e..1890e07d3 100644
  		#size-cells = <2>;
 diff --git a/arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dts b/arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dts
 new file mode 100644
-index 000000000..8dbec0368
+index 000000000..7fdd30205
 --- /dev/null
 +++ b/arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dts
-@@ -0,0 +1,1135 @@
+@@ -0,0 +1,1143 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +
 +/dts-v1/;
@@ -5078,8 +5079,12 @@ index 000000000..8dbec0368
 +		reg = <0x22>;
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&fusb0_int>;
-+		int-n-gpios = <&gpio1 RK_PA2 GPIO_ACTIVE_HIGH>;
-+		vbus-5v-gpios = <&gpio0 RK_PA1 GPIO_ACTIVE_LOW>;
++
++		interrupt-parent = <&gpio1>;
++		interrupts = <RK_PA2 IRQ_TYPE_LEVEL_LOW>;  // INT# 低有效！
++
++		// int-n-gpios = <&gpio1 RK_PA2 GPIO_ACTIVE_HIGH>;
++		// vbus-5v-gpios = <&gpio0 RK_PA1 GPIO_ACTIVE_LOW>;
 +		status = "okay";
 +	};
 +};
@@ -5538,6 +5543,11 @@ index 000000000..8dbec0368
 +&hdmi_in_vopl {
 +	status = "disabled";
 +};
++
++&crypto1 {
++	status = "disabled";
++};
+\ No newline at end of file
 diff --git a/firefly.dts b/firefly.dts
 new file mode 100644
 index 000000000..c1c391629
