@@ -40,7 +40,6 @@ mkdir -p ${WORKDIR}/rockdev
 cp ${WORKDIR}/official/uboot/uboot.img ${WORKDIR}/rockdev/uboot.img
 
 
-
 #==========================================================================#
 #                        build kernel                                      #
 #==========================================================================#
