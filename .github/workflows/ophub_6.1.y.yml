@@ -1,4 +1,4 @@
-name: kernel 4.4 for TB-RK3399ProD(official)
+name: ophub kernel 6.1.y
 
 on:
   repository_dispatch:
@@ -11,8 +11,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
 
     steps:
       - name: Checkout code
@@ -29,7 +27,7 @@ jobs:
           cat /proc/cpuinfo
           cat /proc/meminfo
 
-      - name: Run build in Ubuntu 18.04 container
+      - name: Run build in Ubuntu 22.04 container
         working-directory: ${{ github.workspace }}
         run: |
           pwd
@@ -37,10 +35,10 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
-            ubuntu:18.04 \
+            ubuntu:22.04 \
             bash -c "
-              chmod +x /workspace/build/official-build-on-ubuntu18.04.sh ;
-              /workspace/build/official-build-on-ubuntu18.04.sh
+              chmod +x /workspace/build/kernel6.1-build-on-ubuntu22.04.sh ;
+              /workspace/build/kernel6.1-build-on-ubuntu22.04.sh
             "
 
       - name: List build output
@@ -51,7 +49,7 @@ jobs:
       - name: Upload Image to Release
         uses: ncipollo/release-action@main
         with:
-          tag: TB-RK3399ProD-kernel-4.4-official
+          tag: TB-RK3399ProD-kernel-6.1
           artifacts: ${{ github.workspace }}/output/*
           allowUpdates: true
           replacesArtifacts: true

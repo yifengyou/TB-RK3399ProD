@@ -1,4 +1,4 @@
-name: kernel 6.6 for TB-RK3399ProD
+name: ophub kernel 6.6.y
 
 on:
   repository_dispatch:
