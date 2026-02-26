@@ -40,8 +40,81 @@ md5sum ${WORKDIR}/release/*
 cd ${WORKDIR}
 git clone https://github.com/yifengyou/rockchip-toybrick-kernel kernel.git
 cd kernel.git
-./make.sh linux prod
-cp *.img ${WORKDIR}/release/
+
+# build kernel Image
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  rockchip_linux_defconfig
+
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  olddefconfig
+
+# check kver
+KVER=$(make LOCALVERSION=-kdev kernelrelease)
+KVER="${KVER/kdev*/kdev}"
+if [[ "$KVER" != *kdev ]]; then
+  echo "ERROR: KVER does not end with 'kdev'"
+  exit 1
+fi
+echo "KVER: ${KVER}"
+
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  rk3399pro-toybrick-prod-linux.img \
+  -j$(nproc)
+
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  modules -j$(nproc)
+
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  INSTALL_MOD_PATH=$(pwd)/kos \
+  modules_install
+
+# release kernel image
+ls -alh arch/arm64/boot/Image
+md5sum arch/arm64/boot/Image
+cp -a arch/arm64/boot/Image ${WORKDIR}/release/
+
+# release dtb
+ls -alh arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod-linux.dtb
+md5sum arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod-linux.dtb
+cp -a arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod-linux.dtb ${WORKDIR}/release/
+
+# release config
+cp .config ${WORKDIR}/release/config-4.4.194-kdev
+ls -alh ${WORKDIR}/release/config-4.4.194-kdev
+md5sum ${WORKDIR}/release/config-4.4.194-kdev
+
+# release system map
+cp System.map ${WORKDIR}/release/System.map-4.4.194-kdev
+ls -alh ${WORKDIR}/release/System.map-4.4.194-kdev
+md5sum ${WORKDIR}/release/System.map-4.4.194-kdev
+
+# release kernel modules
+if [ -d kos/lib/modules ]; then
+  find kos -name "*.ko"
+  ls -alh kos/lib/modules/
+  tar -zcvf ${WORKDIR}/release/kos.tar.gz kos
+fi
+
 ls -alh ${WORKDIR}/release/
 md5sum ${WORKDIR}/release/*
 
