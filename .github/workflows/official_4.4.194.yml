@@ -89,8 +89,7 @@ jobs:
           allowUpdates: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: | # official kernel 4.4.194
-
+          body: | # official-kernel-4.4.194
             ## 发布内容
             - **Image** - Linux 内核镜像
             - **dtb/** - 设备树文件
@@ -424,7 +423,7 @@ jobs:
           removeArtifacts: false
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: | # official image 4.4.194
+          body: | # official-image-4.4.194
 
             ## 系统密码
 

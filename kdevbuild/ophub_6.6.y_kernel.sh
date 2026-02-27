@@ -3,7 +3,6 @@
 set -euxo pipefail
 
 WORKDIR=$(pwd)
-export build_tag="TB-RK3399ProD_k6.6_${set_release}_${set_desktop}"
 export DEBIAN_FRONTEND=noninteractive
 
 #==========================================================================#
@@ -30,231 +29,116 @@ apt-get install -y --no-install-recommends \
 
 # Set locale
 localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 || true
-
+mkdir -p ${WORKDIR}/release
 
 #==========================================================================#
 #                        build uboot                                       #
 #==========================================================================#
-cd ${WORKDIR}/
-mkdir -p ${WORKDIR}/rockdev
-cp ${WORKDIR}/official/uboot/uboot.img ${WORKDIR}/rockdev/uboot.img
+cd ${WORKDIR}
+git clone https://github.com/yifengyou/rockchip-toybrick-u-boot u-boot.git
+git clone https://github.com/yifengyou/rockchip-toybrick-rkbin.git rkbin
+git clone https://github.com/yifengyou/rockchip-toybrick-linux-x86.git linux-x86
 
+mkdir -p prebuilts/gcc/
+mv linux-x86 prebuilts/gcc/
+
+cd u-boot.git
+./make.sh rk3399pro
+cp *.img ${WORKDIR}/release/
+ls -alh ${WORKDIR}/release/
+md5sum ${WORKDIR}/release/*
 
 #==========================================================================#
 #                        build kernel                                      #
 #==========================================================================#
-cd "${BUILDER_DIR}"
-echo "=== Cloning repositories ==="
+cd ${WORKDIR}
 git clone --progress https://github.com/ophub/linux-6.6.y.git linux-6.6.y.git
-# git clone --progress https://github.com/rockchip-toybrick/u-boot.git u-boot.git
-# git clone --progress https://github.com/rockchip-toybrick/rkbin.git rkbin
-# git clone --progress https://github.com/rockchip-toybrick/linux-x86.git linux-x86
-# mkdir -p prebuilts/gcc/
-# mv linux-x86 prebuilts/gcc/
-
-#cd "${BUILDER_DIR}"
-#echo "=== Building U-Boot ==="
-#cd u-boot.git
-#./make.sh rk3399pro
-#cp *.img "$OUTPUT_DIR/"
-
-cd "${BUILDER_DIR}"
-echo "=== Building Kernel ==="
 cd linux-6.6.y.git
+ls -alh
 # apply patch
-if ls "${BUILDER_DIR}/kernel-6.6/"*.patch >/dev/null 2>&1; then
+if ls "${BUILDER_DIR}/ophub_6.6.y/"*.patch >/dev/null 2>&1; then
   git config --global user.name yifengyou
   git config --global user.email 842056007@qq.com
-  git am ${BUILDER_DIR}/kernel-6.6/*.patch
+  git am ${BUILDER_DIR}/ophub_6.6.y/*.patch
 fi
 # config kernel
-if [ -f ${BUILDER_DIR}/kernel-6.6/config-6.6 ];then
-  cp -a ${BUILDER_DIR}/kernel-6.6/config-6.6 .config
+if [ -f ${BUILDER_DIR}/ophub_6.6.y/config-6.6 ]; then
+  cp -a ${BUILDER_DIR}/ophub_6.6.y/config-6.6 arch/arm64/configs/rockchip_linux_defconfig
 fi
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) modules
-make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) dtbs
-cp arch/arm64/boot/Image $OUTPUT_DIR/
-mkdir -p dtbs
-find . -name "rk3399*.dtb" | xargs -i cp {} dtbs/
-tar -zcvf $OUTPUT_DIR/dtbs.tar.gz dtbs
-mkdir -p kos
-find . -name "*.ko" | xargs -i cp {} kos/
-tar -zcvf $OUTPUT_DIR/kos.tar.gz kos
-md5sum ${WORKDIR}/rockdev/boot.img
 
+# build kernel Image
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  rockchip_linux_defconfig
 
-#==========================================================================#
-# Task: Build Root Filesystem (rootfs) using Armbian Build System          #
-#                                                                          #
-# The BRANCH variable selects the kernel version and support level:        #
-#   - edge    : Latest mainline kernel (e.g., 6.10+) — bleeding-edge,      #
-#               may include experimental features or instability.          #
-#   - current : Stable mainline kernel (e.g., 6.6 LTS) — recommended for   #
-#               general use; balances new features and reliability.        #
-#   - legacy  : Vendor-provided kernel (e.g., Rockchip 5.10) — intended    #
-#               for compatibility with proprietary drivers or older BSPs.  #
-#                                                                          #
-# Note: Only the rootfs is needed; kernel, U-Boot, and disk images are     #
-#       not required for this stage.                                       #
-#==========================================================================#
-if [ -z "${set_desktop}" ] || [ -z "${set_release}" ]; then
-  echo "skip rootfs build"
-  echo "Build completed successfully!"
-  exit 0
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  olddefconfig
+
+# check kver
+KVER=$(make LOCALVERSION=-kdev kernelrelease)
+KVER="${KVER/kdev*/kdev}"
+if [[ "$KVER" != *kdev ]]; then
+  echo "ERROR: KVER does not end with 'kdev'"
+  exit 1
 fi
-mkdir -p ${WORKDIR}/rootfs
-cd ${WORKDIR}/rootfs
-if [ "${set_desktop}" == "mini" ]; then
-  BUILD_DESKTOP="BUILD_DESKTOP=no"
-else
-  BUILD_DESKTOP=" \
-      BUILD_DESKTOP=yes \
-      DESKTOP_APPGROUPS_SELECTED=remote_desktop \
-      DESKTOP_ENVIRONMENT=${set_desktop} \
-      DESKTOP_ENVIRONMENT_CONFIG_NAME=config_base"
+echo "KVER: ${KVER}"
+
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  -j$(nproc)
+
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  modules -j$(nproc)
+
+make ARCH=arm64 \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  KBUILD_BUILD_USER="builder" \
+  KBUILD_BUILD_HOST="kdevbuilder" \
+  LOCALVERSION=-kdev \
+  INSTALL_MOD_PATH=$(pwd)/kos \
+  modules_install
+
+# release kernel image
+ls -alh arch/arm64/boot/Image
+md5sum arch/arm64/boot/Image
+cp -a arch/arm64/boot/Image ${WORKDIR}/release/
+
+# release dtb
+ls -alh arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dtb
+md5sum arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dtb
+cp -a arch/arm64/boot/dts/rockchip/rk3399pro-toybrick-prod.dtb ${WORKDIR}/release/
+
+# release config
+cp .config ${WORKDIR}/release/config-5.10.66-kdev
+ls -alh ${WORKDIR}/release/config-5.10.66-kdev
+md5sum ${WORKDIR}/release/config-5.10.66-kdev
+
+# release system map
+cp System.map ${WORKDIR}/release/System.map-5.10.66-kdev
+ls -alh ${WORKDIR}/release/System.map-5.10.66-kdev
+md5sum ${WORKDIR}/release/System.map-5.10.66-kdev
+
+# release kernel modules
+if [ -d kos/lib/modules ]; then
+  find kos -name "*.ko"
+  ls -alh kos/lib/modules/
+  tar -zcvf ${WORKDIR}/release/kos.tar.gz kos
 fi
-git clone -q --single-branch \
-  --depth=1 \
-  --branch=main \
-  https://github.com/armbian/build.git armbian.git
-ls -alh ${WORKDIR}/rootfs/armbian.git
-cd ${WORKDIR}/rootfs/armbian.git
-./compile.sh RELEASE=${set_release} \
-  BOARD=nanopct6 \
-  BRANCH=current \
-  BUILD_MINIMAL=no \
-  BUILD_ONLY=default \
-  HOST=armbian \
-  ${BUILD_DESKTOP} \
-  EXPERT=yes \
-  KERNEL_CONFIGURE=no \
-  COMPRESS_OUTPUTIMAGE="sha,img,xz" \
-  VENDOR="Armbian" \
-  SHARE_LOG=yes
-ls -alh ${WORKDIR}/rootfs/armbian.git/output/images/
-
-# extract rootfs
-chmod +x ${WORKDIR}/tools/extract-rootfs-from-armbian.sh
-${WORKDIR}/tools/extract-rootfs-from-armbian.sh ${WORKDIR}/rootfs/armbian.git/output/images/
-ls -alh ${WORKDIR}/rootfs/armbian.git/output/images/rootfs.img
-md5sum ${WORKDIR}/rootfs/armbian.git/output/images/rootfs.img
-
-# hack rootfs
-mount ${WORKDIR}/rootfs/armbian.git/output/images/rootfs.img /mnt
-cp -a ${WORKDIR}/tools/hack-rootfs.sh /mnt/
-cp -a ${WORKDIR}/tools/armbian_first_run.txt /mnt/boot/
-chmod +x /mnt/hack-rootfs.sh
-chroot /mnt sh -c "/hack-rootfs.sh"
-sync
-umount /mnt
-sync
-mv ${WORKDIR}/rootfs/armbian.git/output/images/rootfs.img ${WORKDIR}/rockdev/rootfs.img
-ls -alh ${WORKDIR}/rockdev
-
-#==========================================================================#
-# Script Name: Generate Rockchip Updatable Image                           #
-# Description: This script is used to generate an updatable image package  #
-#              for Rockchip devices, including uboot, boot, and rootfs     #
-#              images. The generated images will be placed in the release  #
-#              directory for further use or distribution.                  #
-#                                                                          #
-# Output Directories and Files:                                            #
-#   - ${WORKDIR}/rockdev/uboot.img      : U-Boot bootloader image          #
-#   - ${WORKDIR}/rockdev/boot.img       : Boot partition image             #
-#   - ${WORKDIR}/rockdev/rootfs.img     : Root filesystem image            #
-#   - ${WORKDIR}/release                : Directory containing the final   #
-#                                         packaged update image            #
-#                                                                          #
-# Note: Ensure that all necessary source files are present in the          #
-#       specified directories before running this script.                  #
-#==========================================================================#
-
-# rootfs.img   : ${WORKDIR}/rockdev/rootfs.img
-# uboot.img    : ${WORKDIR}/rockdev/uboot.img
-# boot.img     : ${WORKDIR}/rockdev/boot.img
-# RKDevTool    : ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.19-RK3588/
-# afptool      : ${WORKDIR}/rockchip-tools.git/afptool
-# rkImageMaker : ${WORKDIR}/rockchip-tools.git/rkImageMaker
-# template     : ${WORKDIR}/update_img_tmp/
-# output       : ${WORKDIR}/release/
-
-cd ${WORKDIR}
-git clone https://github.com/yifengyou/rockchip-tools.git rockchip-tools.git
-ls -alh ${WORKDIR}/rockchip-tools.git
-chmod +x ${WORKDIR}/rockchip-tools.git/afptool
-chmod +x ${WORKDIR}/rockchip-tools.git/rkImageMaker
-
-mkdir -p ${WORKDIR}/release
-mkdir -p ${WORKDIR}/update_img_tmp
-cp -a ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.19-RK3588  \
-  ${WORKDIR}/update_img_tmp/RKDevTool
-mkdir -p ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-
-cp -a ${WORKDIR}/rockdev/uboot.img   ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-cp -a ${WORKDIR}/rockdev/boot.img    ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-cp -a ${WORKDIR}/rockdev/rootfs.img  ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-
-cd ${WORKDIR}/update_img_tmp/RKDevTool/rockdev/image/
-${WORKDIR}/rockchip-tools.git/afptool -pack . temp.img
-${WORKDIR}/rockchip-tools.git/rkImageMaker \
-  -RK3588 MiniLoaderAll.bin \
-  temp.img \
-  update.img \
-  -os_type:androidos
-find . -type f ! -name "update.img" -exec rm -f {} \;
-
-# generate update.img
-cd ${WORKDIR}/update_img_tmp/
-rar a ${WORKDIR}/release/${build_tag}_update.rar RKDevTool
-cd ${WORKDIR}/release/
-sha256sum ${build_tag}_update.rar
-
-#==========================================================================#
-# Script Purpose: Generate Rockchip Firmware Image with RKDevTool          #
-#                                                                          #
-# This script prepares the required partition images and packages them     #
-# into a firmware update bundle compatible with Rockchip's RKDevTool.      #
-#                                                                          #
-# Input Images (must exist before execution):                              #
-#   - ${WORKDIR}/rockdev/uboot.img   : U-Boot bootloader image             #
-#   - ${WORKDIR}/rockdev/boot.img    : Kernel + DTB boot image             #
-#   - ${WORKFS}/rockdev/rootfs.img   : Root filesystem image               #
-#                                                                          #
-# Output:                                                                  #
-#   - ${WORKDIR}/release/            : Final RKDevTool-compatible firmware #
-#                                      package (e.g., update.img)          #
-#                                                                          #
-# Note: Verify that all source images are correctly built and placed in    #
-#       the ${WORKDIR}/rockdev/ directory prior to running this script.    #
-#==========================================================================#
-
-# rootfs.img   : ${WORKDIR}/rockdev/rootfs.img
-# uboot.img    : ${WORKDIR}/rockdev/uboot.img
-# boot.img     : ${WORKDIR}/rockdev/boot.img
-# RKDevTool    : ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.19-RK3588/
-# afptool      : ${WORKDIR}/rockchip-tools.git/afptool
-# rkImageMaker : ${WORKDIR}/rockchip-tools.git/rkImageMaker
-# template     : ${WORKDIR}/update_img_tmp/
-# output       : ${WORKDIR}/release/
-
-mkdir -p ${WORKDIR}/release
-mkdir -p ${WORKDIR}/rockdev_img_tmp
-cp -a ${WORKDIR}/rockchip-tools.git/RKDevTool-v3.19-RK3588  \
-  ${WORKDIR}/rockdev_img_tmp/RKDevTool
-mkdir -p ${WORKDIR}/rockdev_img_tmp/RKDevTool/rockdev/image/
-
-cp -a ${WORKDIR}/rockdev/uboot.img   ${WORKDIR}/rockdev_img_tmp/RKDevTool/rockdev/image/
-cp -a ${WORKDIR}/rockdev/boot.img    ${WORKDIR}/rockdev_img_tmp/RKDevTool/rockdev/image/
-cp -a ${WORKDIR}/rockdev/rootfs.img  ${WORKDIR}/rockdev_img_tmp/RKDevTool/rockdev/image/
-
-cd ${WORKDIR}/rockdev_img_tmp/
-rar a ${WORKDIR}/release/${build_tag}_rockdev.rar RKDevTool
-cd ${WORKDIR}/release/
-sha256sum ${build_tag}_rockdev.rar
 
 ls -alh ${WORKDIR}/release/
-
 echo "Build completed successfully!"
 exit 0
