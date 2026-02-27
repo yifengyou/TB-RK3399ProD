@@ -5,14 +5,14 @@ on:
   workflow_dispatch:
     inputs:
       build_type:
-        description: '构建类型'
+        description: '选择构建类型：all(完整构建), kernel(仅内核), image(仅镜像)'
         required: false
         default: 'all'
         type: choice
         options:
           - all
-          - image
           - kernel
+          - image
 
 env:
   TZ: America/New_York
@@ -20,7 +20,7 @@ env:
 
 jobs:
   build-kernel:
-    if: ${{ github.event.inputs.build_type == 'all' || github.event.inputs.build_type == 'kernel' || github.event.inputs.build_type == '' }}
+    if: ${{ github.event.inputs.build_type == 'all' || github.event.inputs.build_type == 'kernel' }}
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -109,7 +109,7 @@ jobs:
 
 
   build-image:
-    if: ${{ github.event.inputs.build_type == 'all' || github.event.inputs.build_type == 'image' || github.event.inputs.build_type == '' }}
+    if: ${{ github.event.inputs.build_type == 'all' || github.event.inputs.build_type == 'image' }}
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
